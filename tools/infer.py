@@ -124,8 +124,11 @@ def _xywh2cs(x, y, w, h, image_width, image_height):
 if __name__ == '__main__':
     class Args():
         def __init__(self):
-            self.cfg = "experiments/coco/resnet/res50_384x288_d256x3_adam_lr1e-3.yaml"
-            self.model_file = "models/pytorch/pose_coco/pose_resnet_50_384x288.pth.tar"
+            # self.cfg = "experiments/coco/resnet/res50_384x288_d256x3_adam_lr1e-3.yaml"
+            # self.model_file = "models/pytorch/pose_coco/pose_resnet_50_384x288.pth.tar"
+            self.cfg = "experiments/coco/hrnet/w32_384x288_adam_lr1e-3.yaml"
+            self.model_file = "models/pytorch/pose_coco/pose_hrnet_w32_384x288.pth"
+
             self.image_file = '/home/vincent/hd/datasets/MPII/images/000001163.jpg'
             self.flip_test = True
 
