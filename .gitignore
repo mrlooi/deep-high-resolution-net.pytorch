@@ -93,3 +93,6 @@ external/
 draws/
 plot/
 
+
+lib/nms/gpu_nms.cpp
+
