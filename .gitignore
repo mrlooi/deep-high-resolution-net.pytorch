@@ -96,3 +96,5 @@ plot/
 
 lib/nms/gpu_nms.cpp
 
+*.npz
+*.npy
