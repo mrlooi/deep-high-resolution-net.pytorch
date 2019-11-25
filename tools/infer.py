@@ -82,7 +82,7 @@ def crop_and_scale_image(image, bbox, out_size, scale=1.1):
     scale: multiplicative padding around bbox
     out_size: (out_H, out_W)
     """
-    c, s = _box2cs(bbox, image.shape[0], image.shape[1], scale)
+    c, s = _box2cs(bbox, out_size[0], out_size[1], scale)
     r = 0
     trans = get_affine_transform(c, s, r, out_size)
     out = cv2.warpAffine(
@@ -267,8 +267,7 @@ class KeypointPredictor:
         model = model.to(self.args.device)
         return model.eval()
 
-    def predict(self, image, bbox=None):
-        scale = 1.25
+    def predict(self, image, bbox=None, scale=1.2):
         args = self.args
 
         H, W = image.shape[:2]
@@ -299,10 +298,10 @@ if __name__ == '__main__':
     class Args():
         def __init__(self):
             self.backbone = "hrnet" # "resnet"
-            # self.cfg = "experiments/coco/resnet/res50_384x288_d256x3_adam_lr1e-3.yaml"
-            # self.model_file = "models/pytorch/pose_coco/pose_resnet_50_384x288.pth.tar"
-            self.cfg = "experiments/coco/hrnet/w32_384x288_adam_lr1e-3.yaml"
-            self.model_file = "models/pytorch/pose_coco/pose_hrnet_w32_384x288.pth"
+            self.cfg = "experiments/coco/resnet/res50_384x288_d256x3_adam_lr1e-3.yaml"
+            self.model_file = "models/pytorch/pose_coco/pose_resnet_50_384x288.pth.tar"
+            # self.cfg = "experiments/coco/hrnet/w32_384x288_adam_lr1e-3.yaml"
+            # self.model_file = "models/pytorch/pose_coco/pose_hrnet_w32_384x288.pth"
             self.flip_test = True
             self.shift_heatmap = False
             self.device = "cuda"
@@ -312,7 +311,8 @@ if __name__ == '__main__':
             self.dataDir = None
             self.logDir = "./log"
 
-            # self.source = '/home/vincent/hd/datasets/MPII/images/000001163.jpg'
+            # self.source = "muscle"
+            # self.source_file = 'data/%s.jpg'%(self.source)
             # self.source_bbox = None
             self.source = "manako"
             self.source_file = 'data/%s.mp4'%(self.source)
@@ -349,7 +349,8 @@ if __name__ == '__main__':
         if ori_img is None:
             raise ValueError('Fail to read {}'.format(source))
         images = [ori_img]
-        box = [470, 85, 605, 464]  # x, y, x2, y2
+        # box = [470, 85, 605, 464]  # x, y, x2, y2
+        box = [0, 0, ori_img.shape[1]-1, ori_img.shape[0]-1]  # x, y, x2, y2
         bboxes = np.array([box])
 
     N = len(images)
@@ -359,7 +360,7 @@ if __name__ == '__main__':
     end_frame = N
 
     with torch.no_grad():
-        scale = 1.25
+        scale = 1.05
         for ix in range(start_frame, end_frame):
             ori_img = images[ix]
             bbox = bboxes[ix, :4]
@@ -367,7 +368,7 @@ if __name__ == '__main__':
             box[2:] -= box[:2]
 
             # compute coordinate
-            preds, maxvals, cropped_img = predictor.predict(ori_img, box)
+            preds, maxvals, cropped_img = predictor.predict(ori_img, box, scale=scale)
 
             # visualize
             preds = np.round(preds).astype(np.int)
@@ -449,9 +450,9 @@ if __name__ == '__main__':
         return k2d
 
     keypoints_2d = filter_keypoints(keypoints_2d)
-    out_file = "data/%s_keypoints_hrnet.npy"%(args.source)
-    np.save(out_file, keypoints_2d)
-    print("Saved to %s"%(out_file))
+    # out_file = "data/%s_keypoints_hrnet.npy"%(args.source)
+    # np.save(out_file, keypoints_2d)
+    # print("Saved to %s"%(out_file))
 
     def visualize():
         for ix in range(start_frame, end_frame):
