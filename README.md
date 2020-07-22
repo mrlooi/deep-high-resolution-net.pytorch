@@ -1,3 +1,11 @@
+### ABOUT
+For inference, see tools/infer.py
+
+
+
+
+
+
 # Deep High-Resolution Representation Learning for Human Pose Estimation (CVPR 2019)
 ## News
 - Visualization code for showing the pose estimation results. Thanks Depu!
